@@ -1,0 +1,356 @@
+.studio-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-blue);
+  border-radius: 14px;
+  padding: 1.25rem;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+}
+
+.card-header-custom {
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.step-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--knicks-orange);
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.panel-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.field-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 0.45rem;
+}
+
+.text-orange {
+  color: var(--knicks-orange);
+}
+
+.text-muted-custom {
+  color: var(--text-muted);
+}
+
+.char-counter {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* Dropzone */
+.dropzone {
+  border: 1.5px dashed var(--border-blue);
+  background: rgba(18, 52, 102, 0.14);
+  border-radius: 10px;
+  padding: 1.15rem 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dropzone:focus-visible {
+  outline: 2px solid var(--knicks-orange);
+  outline-offset: 3px;
+}
+
+.dropzone:hover,
+.dropzone.dragging {
+  border-color: var(--knicks-orange);
+  background: rgba(245, 132, 38, 0.08);
+}
+
+.dropzone-icon {
+  font-size: 1.9rem;
+  color: var(--knicks-orange);
+  margin-bottom: 0.35rem;
+}
+
+.file-chip {
+  background: var(--bg-elevated);
+  border: 1px solid var(--knicks-blue);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+}
+
+.btn-icon-danger {
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  border-radius: 7px;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-icon-danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* Inputs */
+.studio-input {
+  background-color: var(--bg-obsidian);
+  border: 1px solid var(--border-blue);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+
+.studio-input:focus {
+  background-color: var(--bg-obsidian);
+  color: var(--text-primary);
+  border-color: var(--knicks-orange);
+  box-shadow: 0 0 0 3px rgba(245, 132, 38, 0.18);
+}
+
+.studio-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Botones Knicks */
+.btn-knicks-primary {
+  background: linear-gradient(135deg, var(--knicks-orange) 0%, #d96b11 100%);
+  color: #0a0c10;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1.1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(245, 132, 38, 0.28);
+}
+
+.btn-knicks-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--knicks-orange-hover) 0%, var(--knicks-orange) 100%);
+  color: #0a0c10;
+  transform: translateY(-1px);
+}
+
+.btn-knicks-primary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.btn-cobalt {
+  background-color: var(--knicks-blue);
+  color: #ffffff;
+  border: 1px solid #245299;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.18s ease;
+}
+
+.btn-cobalt:hover:not(:disabled) {
+  background-color: #194585;
+  color: #ffffff;
+  border-color: var(--knicks-orange);
+}
+
+.btn-outline-studio {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-blue);
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.btn-outline-studio:hover {
+  border-color: var(--knicks-orange);
+  color: var(--knicks-orange);
+}
+
+/* Alertas */
+.alert-knicks {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+}
+
+.alert-error {
+  background: rgba(220, 38, 38, 0.14);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.alert-info {
+  background: rgba(18, 52, 102, 0.35);
+  border: 1px solid var(--knicks-orange);
+  color: #fed7aa;
+}
+
+/* Estado vacío y Loader */
+.empty-stage {
+  border: 1px dashed var(--border-blue);
+  border-radius: 12px;
+  background: rgba(10, 12, 16, 0.55);
+  min-height: 380px;
+}
+
+.empty-badge {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: rgba(18, 52, 102, 0.35);
+  border: 1px solid var(--border-blue);
+  color: var(--knicks-orange);
+  font-size: 1.6rem;
+  display: grid;
+  place-items: center;
+}
+
+.max-w-md {
+  max-width: 440px;
+}
+
+.loader-ring {
+  width: 46px;
+  height: 46px;
+  border: 3px solid rgba(18, 52, 102, 0.4);
+  border-top-color: var(--knicks-orange);
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Hoja de Previsualización del CV */
+.cv-paper-wrapper {
+  background: #080a0e;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 1rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.cv-document {
+  background: #ffffff;
+  color: #1a202c;
+  padding: 1.9rem 2rem;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  font-family: 'Inter', Arial, sans-serif;
+  line-height: 1.45;
+}
+
+.cv-doc-header {
+  margin-bottom: 1.2rem;
+}
+
+.cv-name {
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #1b365d;
+  margin: 0 0 0.2rem;
+  letter-spacing: 0.02em;
+}
+
+.cv-target-role {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2b547e;
+  margin-bottom: 0.35rem;
+}
+
+.cv-contacts {
+  font-size: 0.8rem;
+  color: #4a5568;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.cv-section {
+  margin-bottom: 1.15rem;
+}
+
+.cv-section-title {
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #1b365d;
+  border-bottom: 1.5px solid #2b547e;
+  padding-bottom: 0.2rem;
+  margin-bottom: 0.55rem;
+}
+
+.cv-text {
+  font-size: 0.87rem;
+  color: #2d3748;
+  margin-bottom: 0.4rem;
+}
+
+.cv-skill-row {
+  font-size: 0.86rem;
+  margin-bottom: 0.25rem;
+}
+
+.cv-item {
+  margin-bottom: 0.7rem;
+}
+
+.cv-period {
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #4a5568;
+}
+
+.proj-type-tag {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #2b547e;
+}
+
+.cv-tech-list {
+  font-size: 0.8rem;
+  color: #4a5568;
+}
+
+.cv-list {
+  margin: 0.25rem 0 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  color: #2d3748;
+}
+
+.cv-list li {
+  margin-bottom: 0.2rem;
+}
+
+@media (max-width: 991.98px) {
+  .cv-document {
+    padding: 1.5rem 1.4rem;
+  }
+
+  .cv-name {
+    font-size: 1.4rem;
+  }
+
+  .cv-text,
+  .cv-skill-row,
+  .cv-list {
+    font-size: 0.82rem;
+  }
+
+  .cv-paper-wrapper {
+    max-height: 60vh;
+  }
+}

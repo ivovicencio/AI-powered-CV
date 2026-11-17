@@ -1,0 +1,14 @@
+# Variables locales; las plantillas *.env.example sí se versionan.
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Dependencias y artefactos
+**/node_modules/
+**/dist/
+**/.angular/
+**/out-tsc/
+.vercel/

@@ -1,0 +1,16 @@
+{
+  "name": "ai-powered-cv",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CVOLVE - adaptador de CV con IA (Angular + Express) en un solo repo",
+  "scripts": {
+    "install:all": "npm install --prefix backend --no-audit --no-fund && npm install --prefix front-ai-cv --no-audit --no-fund",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:front": "npm start --prefix front-ai-cv",
+    "build": "npm run build --prefix front-ai-cv",
+    "build:backend": "npm run build --prefix backend",
+    "test": "npm run test:front && npm run test:backend",
+    "test:front": "npm test --prefix front-ai-cv",
+    "test:backend": "npm run test:rate-limit --prefix backend"
+  }
+}

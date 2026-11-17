@@ -1,0 +1,52 @@
+.top-bar {
+  background: rgba(10, 12, 16, 0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-blue);
+  padding: 0.9rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand-logo {
+  display: block;
+  width: 200px;
+  height: 50px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.brand-subtitle {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 575.98px) {
+  .brand-logo {
+    width: 156px;
+    height: 42px;
+  }
+
+  .brand-description {
+    display: none;
+  }
+}
+
+.privacy-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--knicks-orange);
+  box-shadow: 0 0 8px var(--knicks-orange);
+}

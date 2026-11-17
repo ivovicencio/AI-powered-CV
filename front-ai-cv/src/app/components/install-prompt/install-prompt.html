@@ -1,0 +1,11 @@
+@if (canInstall()) {
+  <button
+    type="button"
+    class="install-button"
+    aria-label="Instalar CVOLVE en este dispositivo"
+    (click)="install()"
+  >
+    <i class="bi bi-download" aria-hidden="true"></i>
+    <span>Instalar app</span>
+  </button>
+}

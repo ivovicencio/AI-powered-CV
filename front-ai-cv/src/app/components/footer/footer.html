@@ -1,0 +1,33 @@
+<footer class="site-footer">
+  <div class="container-fluid px-4">
+    <div class="footer-inner">
+      <div class="footer-credit">
+        <span>Hecho por <strong>Ivo Vicencio - ViroTech</strong></span>
+        <span class="footer-separator" aria-hidden="true">·</span>
+        <span>© {{ year }}</span>
+        <span class="footer-separator" aria-hidden="true">·</span>
+        <a
+          href="https://github.com/ivovicencio/AI-powered-CV"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Open source en GitHub</a
+        >
+      </div>
+
+      <nav class="footer-socials" aria-label="Redes sociales de Ivo Vicencio">
+        @for (social of socials; track social.label) {
+          <a
+            class="social-link"
+            [href]="social.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="social.label"
+            [attr.title]="social.label"
+          >
+            <i class="bi {{ social.icon }}" aria-hidden="true"></i>
+          </a>
+        }
+      </nav>
+    </div>
+  </div>
+</footer>

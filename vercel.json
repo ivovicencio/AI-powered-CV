@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "web": {
+      "root": "front-ai-cv",
+      "framework": "angular",
+      "buildCommand": "npm run build",
+      "outputDirectory": "dist/front-ai-cv/browser",
+      "rewrites": [
+        { "source": "/((?!api/|.*\\..*).*)", "destination": "/index.html" }
+      ]
+    },
+    "api": {
+      "root": "backend/",
+      "runtime": "container",
+      "entrypoint": "Dockerfile"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": { "service": "api" } },
+    { "source": "/(.*)", "destination": { "service": "web" } }
+  ]
+}

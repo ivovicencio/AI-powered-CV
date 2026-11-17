@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verificar
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            front-ai-cv/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci --prefix backend && npm ci --prefix front-ai-cv
+
+      - name: Tipos del backend
+        working-directory: backend
+        run: npx tsc --noEmit
+
+      - name: Smoke del rate limit
+        working-directory: backend
+        run: npm run test:rate-limit
+
+      - name: Tests del frontend
+        working-directory: front-ai-cv
+        run: npm test -- --watch=false
+
+      - name: Build de producción
+        working-directory: front-ai-cv
+        run: npm run build

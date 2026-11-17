@@ -1,0 +1,45 @@
+.install-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--knicks-orange);
+  border-radius: 999px;
+  background: var(--knicks-orange-subtle);
+  color: var(--knicks-orange);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.install-button:hover,
+.install-button:focus-visible {
+  background: var(--knicks-orange);
+  color: #0a0c10;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 575.98px) {
+  .install-button span {
+    display: none;
+  }
+
+  .install-button {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .install-button {
+    transition: none;
+  }
+
+  .install-button:hover,
+  .install-button:focus-visible {
+    transform: none;
+  }
+}
