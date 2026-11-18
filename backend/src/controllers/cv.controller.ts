@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { documentService } from '../services/document.service';
 import { aiService } from '../services/ai.service';
+import { AiServiceError } from '../services/ai-service.error';
 import { cvGeneratorService } from '../services/cv-generator.service';
 import { isAdaptedCv } from '../utils/validate-cv';
 
@@ -48,7 +49,8 @@ export const cvCtrl = {
                 ? error.message
                 : 'Error procesando la adaptación del CV.';
 
-            res.status(500).json({
+            const status = error instanceof AiServiceError ? error.statusCode : 500;
+            res.status(status).json({
                 status: '0',
                 msg: message
             });

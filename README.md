@@ -204,7 +204,8 @@ curl -X POST http://localhost:3000/api/cv/adapt \
 | `400` | Falta el archivo o el formato/tamaño no es válido. |
 | `422` | No se pudo leer la URL de la oferta. |
 | `429` | Superaste el límite por IP o el cupo diario. Incluye `Retry-After` cuando aplica. |
-| `401` / `404` / `429` desde Groq | El backend lo traduce a un mensaje en español. |
+| `502` | El proveedor de IA falló o devolvió una respuesta inválida. |
+| `503` | El proveedor de IA no está configurado, el modelo no está disponible o se alcanzó su cuota temporal. |
 | `500` | Error inesperado; no expone stack traces. |
 
 ## Deploy en Vercel
@@ -256,7 +257,7 @@ npm run test:backend
 npm run build
 ```
 
-Los tests cubren la creación de componentes, la firma y las redes del footer, el prompt de instalación, la extracción estructurada de ofertas (incluido un perfil económico), la exportación DOCX/PDF y el comportamiento del rate limit (422 → 429 y cupo diario) sin consumir tokens ni usar Redis.
+Los tests cubren la creación de componentes, la firma y las redes del footer, el prompt de instalación, la extracción estructurada de ofertas (incluido un perfil económico), la exportación DOCX/PDF, la validación del contrato de salida de IA y el comportamiento del rate limit (422 → 429 y cupo diario) sin consumir tokens ni usar Redis.
 
 GitHub Actions ejecuta en cada push y PR: instalación con `npm ci`, type-check del backend, smoke del rate limit, tests del front y build de producción.
 
