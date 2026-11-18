@@ -94,10 +94,10 @@ export const cvGeneratorService = {
             );
         }
 
-        // Habilidades Técnicas
-        if (cvData.technicalSkills && cvData.technicalSkills.length > 0) {
-            children.push(createSectionHeadingDocx('Habilidades Técnicas'));
-            for (const group of cvData.technicalSkills) {
+        // Habilidades relevantes para el puesto, de cualquier sector.
+        if (cvData.keySkills && cvData.keySkills.length > 0) {
+            children.push(createSectionHeadingDocx('Habilidades clave'));
+            for (const group of cvData.keySkills) {
                 children.push(
                     new Paragraph({
                         spacing: { after: 60 },
@@ -145,8 +145,8 @@ export const cvGeneratorService = {
                         children: [
                             new TextRun({ text: `${proj.name} `, bold: true, size: 21 }),
                             new TextRun({ text: `[${proj.type}]`, italics: true, size: 19, color: '2B547E' }),
-                            proj.technologies?.length
-                                ? new TextRun({ text: ` — ${proj.technologies.join(', ')}`, size: 19, color: '555555' })
+                            proj.toolsAndMethods?.length
+                                ? new TextRun({ text: ` — ${proj.toolsAndMethods.join(', ')}`, size: 19, color: '555555' })
                                 : new TextRun({ text: '' })
                         ]
                     }),
@@ -262,10 +262,10 @@ export const cvGeneratorService = {
                 doc.font('Helvetica').fontSize(10).text(cvData.professionalSummary, { align: 'justify' });
             }
 
-            // Habilidades Técnicas
-            if (cvData.technicalSkills?.length) {
-                addSectionTitle('Habilidades Técnicas');
-                for (const group of cvData.technicalSkills) {
+            // Habilidades relevantes para el puesto, de cualquier sector.
+            if (cvData.keySkills?.length) {
+                addSectionTitle('Habilidades clave');
+                for (const group of cvData.keySkills) {
                     doc.font('Helvetica-Bold').fontSize(9.5).text(`${group.category}: `, { continued: true });
                     doc.font('Helvetica').fontSize(9.5).text(group.skills.join(', '));
                     doc.moveDown(0.2);
@@ -290,9 +290,9 @@ export const cvGeneratorService = {
             if (cvData.academicAndPersonalProjects?.length) {
                 addSectionTitle('Proyectos Relevantes');
                 for (const proj of cvData.academicAndPersonalProjects) {
-                    const techStr = proj.technologies?.length ? ` — ${proj.technologies.join(', ')}` : '';
+                    const toolsStr = proj.toolsAndMethods?.length ? ` — ${proj.toolsAndMethods.join(', ')}` : '';
                     doc.font('Helvetica-Bold').fontSize(10).text(`${proj.name} [${proj.type}]`, { continued: true });
-                    doc.font('Helvetica').fontSize(9.5).fillColor('#555555').text(techStr);
+                    doc.font('Helvetica').fontSize(9.5).fillColor('#555555').text(toolsStr);
                     doc.fillColor('#111111');
                     doc.font('Helvetica').fontSize(9.5).text(proj.description);
                     for (const hl of proj.highlights || []) {

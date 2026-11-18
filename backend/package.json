@@ -10,7 +10,9 @@
     "dev": "node -r dotenv/config --import tsx --watch src/index.ts",
     "build": "tsc",
     "start": "node -r dotenv/config dist/index.js",
-    "test:rate-limit": "tsx scripts/smoke-rate-limit.ts"
+    "test:rate-limit": "tsx scripts/smoke-rate-limit.ts",
+    "test:job-extractor": "tsx scripts/smoke-job-extractor.ts",
+    "test:cv-generator": "tsx scripts/smoke-cv-generator.ts"
   },
   "dependencies": {
     "axios": "^1.7.7",

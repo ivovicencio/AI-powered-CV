@@ -123,7 +123,7 @@
           <textarea
             rows="9"
             class="form-control studio-input"
-            placeholder="Pegá acá los requisitos, stack tecnológico, responsabilidades y descripción del puesto..."
+            placeholder="Pegá la descripción completa: tareas, requisitos, experiencia y habilidades del puesto..."
             [ngModel]="jobDescription()"
             (ngModelChange)="jobDescription.set($event)"
           ></textarea>
@@ -217,7 +217,7 @@
           <div class="empty-stage flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center p-4">
             <div class="loader-ring mb-3"></div>
             <h3 class="h5 fw-semibold text-white mb-1">Alineando palabras clave y prioridades...</h3>
-            <p class="text-secondary small mb-0">Destacando tecnologías relevantes, proyectos académicos y experiencia transferible.</p>
+            <p class="text-secondary small mb-0">Identificando las habilidades relevantes y la experiencia transferible para este puesto.</p>
           </div>
         }
 
@@ -256,11 +256,11 @@
                 </section>
               }
 
-              <!-- Habilidades Técnicas -->
-              @if (adaptedCv()!.technicalSkills.length) {
+              <!-- Habilidades clave -->
+              @if (adaptedCv()!.keySkills.length) {
                 <section class="cv-section">
-                  <h4 class="cv-section-title">Habilidades Técnicas</h4>
-                  @for (group of adaptedCv()!.technicalSkills; track group.category) {
+                  <h4 class="cv-section-title">Habilidades clave</h4>
+                  @for (group of adaptedCv()!.keySkills; track group.category) {
                     <div class="cv-skill-row">
                       <strong>{{ group.category }}:</strong>
                       <span>{{ group.skills.join(', ') }}</span>
@@ -300,7 +300,9 @@
                           <strong>{{ proj.name }}</strong>
                           <span class="proj-type-tag ms-2">[{{ proj.type }}]</span>
                         </div>
-                        <span class="cv-tech-list">{{ proj.technologies.join(', ') }}</span>
+                        @if (proj.toolsAndMethods.length) {
+                          <span class="cv-tools-methods">{{ proj.toolsAndMethods.join(', ') }}</span>
+                        }
                       </div>
                       <p class="cv-text mb-1">{{ proj.description }}</p>
                       <ul class="cv-list">

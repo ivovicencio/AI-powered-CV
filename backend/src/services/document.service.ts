@@ -24,7 +24,13 @@ export const documentService = {
         }
 
         const cleanedText = extractedText
-            .replace(/\r\n/g, '\n')
+            .replace(/\r\n?/g, '\n')
+            .replace(/\u00a0/g, ' ')
+            .replace(/[\u200B-\u200D\uFEFF]/g, '')
+            .replace(/([A-Za-zÁÉÍÓÚÜÑáéíóúüñ])-\n(?=[a-záéíóúüñ])/g, '$1')
+            .split('\n')
+            .map(line => line.replace(/[ \t]+/g, ' ').trim())
+            .join('\n')
             .replace(/\n{3,}/g, '\n\n')
             .trim();
 

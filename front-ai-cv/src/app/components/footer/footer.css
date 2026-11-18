@@ -4,6 +4,90 @@
   padding: 1.25rem 0 1.5rem;
 }
 
+.suggestion-box {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.9fr);
+  gap: 1.5rem;
+  align-items: end;
+  margin-bottom: 1.25rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--border-blue);
+  border-left: 3px solid var(--knicks-orange);
+  background: linear-gradient(100deg, rgba(18, 52, 102, 0.22), rgba(10, 12, 16, 0.4));
+}
+
+.suggestion-kicker {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--knicks-orange);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.suggestion-copy h2 {
+  margin: 0 0 0.25rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.suggestion-copy p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.suggestion-form {
+  display: flex;
+  gap: 0.6rem;
+  align-items: stretch;
+}
+
+.suggestion-form textarea {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  border: 1px solid var(--border-blue);
+  border-radius: 6px;
+  background: var(--bg-obsidian);
+  color: var(--text-primary);
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.suggestion-form textarea:focus-visible {
+  outline: 2px solid var(--knicks-orange);
+  outline-offset: 2px;
+}
+
+.suggestion-form textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.suggestion-form button {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  background: #1f8f55;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.suggestion-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .footer-inner {
   display: flex;
   flex-wrap: wrap;
@@ -68,6 +152,20 @@
 }
 
 @media (max-width: 575.98px) {
+  .suggestion-box {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    padding: 1rem;
+  }
+
+  .suggestion-form {
+    flex-direction: column;
+  }
+
+  .suggestion-form button {
+    min-height: 42px;
+  }
+
   .footer-inner {
     justify-content: center;
     text-align: center;

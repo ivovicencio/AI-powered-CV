@@ -17,7 +17,7 @@ export const isAdaptedCv = (value: unknown): value is AdaptedCv => {
         typeof personalInfo.fullName === 'string' &&
         typeof personalInfo.targetRoleTitle === 'string' &&
         typeof cv.professionalSummary === 'string' &&
-        Array.isArray(cv.technicalSkills) &&
+        Array.isArray(cv.keySkills) &&
         Array.isArray(cv.workExperience) &&
         Array.isArray(cv.academicAndPersonalProjects) &&
         Array.isArray(cv.education)

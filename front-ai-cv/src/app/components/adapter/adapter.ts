@@ -204,9 +204,9 @@ export class Adapter {
       lines.push('');
     }
 
-    if (cv.technicalSkills?.length) {
-      lines.push('HABILIDADES TÉCNICAS');
-      cv.technicalSkills.forEach(g => lines.push(`• ${g.category}: ${g.skills.join(', ')}`));
+    if (cv.keySkills?.length) {
+      lines.push('HABILIDADES CLAVE');
+      cv.keySkills.forEach(g => lines.push(`• ${g.category}: ${g.skills.join(', ')}`));
       lines.push('');
     }
 
@@ -222,7 +222,8 @@ export class Adapter {
     if (cv.academicAndPersonalProjects?.length) {
       lines.push('PROYECTOS RELEVANTES');
       cv.academicAndPersonalProjects.forEach(proj => {
-        lines.push(`${proj.name} [${proj.type}] — ${proj.technologies.join(', ')}`);
+        const toolsAndMethods = proj.toolsAndMethods?.length ? ` — ${proj.toolsAndMethods.join(', ')}` : '';
+        lines.push(`${proj.name} [${proj.type}]${toolsAndMethods}`);
         lines.push(`  ${proj.description}`);
         proj.highlights?.forEach(h => lines.push(`  - ${h}`));
       });

@@ -53,14 +53,15 @@
 
 ## Qué resuelve
 
-Adaptar un CV a cada oferta es repetitivo y fácil de hacer mal: se te escapan palabras clave, sobra experiencia irrelevante y terminás con tres versiones distintas del mismo archivo. CVOLVE automatiza ese ajuste con IA y te deja revisar el resultado antes de descargarlo.
+Adaptar un CV a cada oferta es repetitivo y fácil de hacer mal: se te escapan palabras clave, sobra experiencia irrelevante y terminás con tres versiones distintas del mismo archivo. CVOLVE automatiza ese ajuste con IA y te deja revisar el resultado antes de descargarlo. Está pensado para cualquier ocupación —incluidos perfiles de Economía, Finanzas y Contabilidad—: identifica las competencias que pide cada oferta, sin asumir que el puesto pertenece al rubro IT.
 
 Está pensado para **uso público y abierto**: cualquiera que abra la URL puede usarlo, sin códigos ni invitaciones. El coste de la API se controla con límites, no con barreras de entrada.
 
 ## Funcionalidades
 
-- **Extracción de ofertas:** pegás una URL pública y el backend lee la descripción (axios + cheerio, con bloqueo de hosts privados).
-- **Adaptación con IA:** Groq analiza tu CV y la oferta, y devuelve un JSON estructurado con perfil, habilidades, experiencia, proyectos, formación, certificaciones e idiomas.
+- **Extracción de ofertas:** pegás una URL pública y el backend prioriza datos estructurados de ofertas (JobPosting/JSON-LD), con lectura del contenido visible como alternativa. Si el sitio bloquea el acceso, podés pegar el texto manualmente.
+- **Adaptación con IA para distintos sectores:** Groq identifica competencias, experiencia relevante y habilidades transferibles en el CV, y las relaciona con la oferta. Los términos ATS se usan de forma natural, sin inventar requisitos, experiencia ni logros.
+- **Sugerencias directas:** escribís una idea y CVOLVE abre WhatsApp con el mensaje preparado; no se envía hasta que lo confirmes.
 - **Vista previa real:** ves el CV adaptado antes de descargarlo, con copia en texto plano incluida.
 - **Exportación:** DOCX y PDF generados en el servidor con `docx` y `pdfkit`.
 - **Cero almacenamiento:** el archivo se procesa en memoria y se descarta; no hay base de datos ni subidas persistentes.
@@ -92,7 +93,7 @@ Navegador
 ```
 
 1. Subís un PDF/DOCX de hasta **4 MB** y pegás una descripción de al menos **20 caracteres**.
-2. `POST /api/cv/adapt` extrae el texto, lo envía a Groq con un prompt que prohíbe inventar datos y devuelve el CV adaptado.
+2. `POST /api/cv/adapt` extrae y normaliza el texto, lo envía a Groq con un prompt sectorialmente neutral que prohíbe inventar datos y devuelve el CV adaptado.
 3. Revisás la vista previa y elegís copiar, descargar DOCX o descargar PDF.
 4. El archivo desaparece: el buffer se limpia en memoria al terminar, tanto si salió bien como si falló.
 
@@ -168,7 +169,7 @@ El modelo `llama-3.3-70b-versatile` fue retirado por Groq en 08/2026; no lo uses
 ## Uso
 
 1. **Subí tu CV:** arrastralo al área punteada o hacé clic para buscarlo (PDF o DOCX, máx. 4 MB).
-2. **Contanos la oferta:** pegá la descripción o pegá una URL pública y tocá **Extraer**. Si el sitio bloquea la lectura, podés copiar y pegar el texto igual.
+2. **Contanos la oferta:** pegá la descripción o una URL pública y tocá **Extraer**. Si el sitio bloquea la lectura, podés copiar y pegar el texto igual. Funciona con ofertas de cualquier sector.
 3. **Adaptá:** tocá **Adaptar CV a esta Oferta**.
 4. **Revisá y llevátelo:** copiá el texto o descargá el DOCX/PDF desde el panel derecho.
 
@@ -255,7 +256,7 @@ npm run test:backend
 npm run build
 ```
 
-Los tests cubren la creación de componentes, la firma y las redes del footer, el prompt de instalación y el comportamiento del rate limit (422 → 429 y cupo diario) sin consumir tokens ni usar Redis.
+Los tests cubren la creación de componentes, la firma y las redes del footer, el prompt de instalación, la extracción estructurada de ofertas (incluido un perfil económico), la exportación DOCX/PDF y el comportamiento del rate limit (422 → 429 y cupo diario) sin consumir tokens ni usar Redis.
 
 GitHub Actions ejecuta en cada push y PR: instalación con `npm ci`, type-check del backend, smoke del rate limit, tests del front y build de producción.
 

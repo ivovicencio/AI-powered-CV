@@ -11,6 +11,6 @@
     "build:backend": "npm run build --prefix backend",
     "test": "npm run test:front && npm run test:backend",
     "test:front": "npm test --prefix front-ai-cv",
-    "test:backend": "npm run test:rate-limit --prefix backend"
+    "test:backend": "npm run test:rate-limit --prefix backend && npm run test:job-extractor --prefix backend && npm run test:cv-generator --prefix backend"
   }
 }

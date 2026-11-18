@@ -10,7 +10,7 @@ export interface AdaptedCv {
     portfolio?: string;
   };
   professionalSummary: string;
-  technicalSkills: {
+  keySkills: {
     category: string;
     skills: string[];
   }[];
@@ -24,7 +24,7 @@ export interface AdaptedCv {
   academicAndPersonalProjects: {
     name: string;
     type: 'Académico' | 'Personal' | 'Freelance';
-    technologies: string[];
+    toolsAndMethods: string[];
     description: string;
     highlights: string[];
   }[];
