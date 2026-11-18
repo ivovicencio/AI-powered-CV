@@ -62,10 +62,10 @@ Está pensado para **uso público y abierto**: cualquiera que abra la URL puede 
 - **Extracción de ofertas:** pegás una URL pública y el backend prioriza datos estructurados de ofertas (JobPosting/JSON-LD), con lectura del contenido visible como alternativa. Si el sitio bloquea el acceso, podés pegar el texto manualmente.
 - **Adaptación con IA para distintos sectores:** Groq identifica competencias, experiencia relevante y habilidades transferibles en el CV, y las relaciona con la oferta. Los términos ATS se usan de forma natural, sin inventar requisitos, experiencia ni logros.
 - **Sugerencias directas:** escribís una idea y CVOLVE abre WhatsApp con el mensaje preparado; no se envía hasta que lo confirmes.
-- **Vista previa real:** ves el CV adaptado antes de descargarlo, con copia en texto plano incluida.
+- **Revisión del resultado:** corregís el texto directamente en la vista previa, copiás en texto plano o descargás; los cambios se mantienen solo en la sesión actual.
 - **Exportación:** DOCX y PDF generados en el servidor con `docx` y `pdfkit`.
 - **Cero almacenamiento:** el archivo se procesa en memoria y se descarta; no hay base de datos ni subidas persistentes.
-- **PWA instalable:** manifiesto, iconos propios, service worker, modo offline para la interfaz y botón *Instalar app*.
+- **PWA instalable:** manifiesto, iconos propios, service worker, modo offline para la interfaz y botón _Instalar app_.
 - **Listo para producción:** frontend y backend en un solo repo, desplegables en Vercel Services.
 - **Open source de verdad:** licencia MIT, guía de contribución, código de conducta, política de seguridad, CI y smoke test.
 

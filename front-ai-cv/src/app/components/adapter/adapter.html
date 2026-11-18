@@ -1,21 +1,39 @@
-<div class="container-fluid px-4">
+<div class="adapter-shell container-fluid px-4" [attr.aria-busy]="isAdapting() ? 'true' : null">
   @if (errorMessage()) {
-    <div class="alert-knicks alert-error mb-3 d-flex align-items-center justify-content-between">
+    <div
+      class="alert-knicks alert-error mb-3 d-flex align-items-center justify-content-between"
+      role="alert"
+      aria-live="assertive"
+    >
       <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-exclamation-triangle-fill"></i>
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
         <span>{{ errorMessage() }}</span>
       </div>
-      <button type="button" class="btn-close btn-close-white btn-sm" (click)="errorMessage.set(null)"></button>
+      <button
+        type="button"
+        class="btn-close btn-close-white btn-sm"
+        aria-label="Cerrar mensaje de error"
+        (click)="errorMessage.set(null)"
+      ></button>
     </div>
   }
 
   @if (infoMessage()) {
-    <div class="alert-knicks alert-info mb-3 d-flex align-items-center justify-content-between">
+    <div
+      class="alert-knicks alert-info mb-3 d-flex align-items-center justify-content-between"
+      role="status"
+      aria-live="polite"
+    >
       <div class="d-flex align-items-center gap-2">
-        <i class="bi bi-check-circle-fill"></i>
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
         <span>{{ infoMessage() }}</span>
       </div>
-      <button type="button" class="btn-close btn-close-white btn-sm" (click)="infoMessage.set(null)"></button>
+      <button
+        type="button"
+        class="btn-close btn-close-white btn-sm"
+        aria-label="Cerrar mensaje informativo"
+        (click)="infoMessage.set(null)"
+      ></button>
     </div>
   }
 
@@ -24,16 +42,16 @@
     <div class="col-12 col-lg-5">
       <div class="studio-card h-100">
         <div class="card-header-custom">
-          <span class="step-tag">01 / INPUT</span>
-          <h2 class="panel-title">Configuración de Postulación</h2>
+          <span class="step-tag">01 · Prepará tu postulación</span>
+          <h2 class="panel-title">Tu CV y la oferta</h2>
         </div>
 
         <!-- Paso 1: Subida de CV -->
         <div class="mb-4">
-          <label class="field-label">
+          <div class="field-label" id="cv-file-label">
             <i class="bi bi-file-earmark-person me-1 text-orange"></i>
-            CV Base (PDF o DOCX)
-          </label>
+            Tu CV original (PDF o DOCX)
+          </div>
 
           @if (!selectedFile()) {
             <div
@@ -45,13 +63,15 @@
               (click)="fileInput.click()"
               role="button"
               tabindex="0"
-              aria-label="Seleccionar CV en PDF o DOCX"
+              aria-labelledby="cv-file-label"
+              aria-describedby="cv-file-help"
               (keydown.enter)="fileInput.click()"
               (keydown.space)="$event.preventDefault(); fileInput.click()"
             >
               <input
                 #fileInput
                 type="file"
+                aria-label="Seleccionar un archivo PDF o DOCX"
                 accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 class="d-none"
                 (change)="onFileSelected($event)"
@@ -60,7 +80,7 @@
                 <i class="bi bi-cloud-arrow-up"></i>
               </div>
               <p class="mb-1 fw-medium">Arrastrá tu CV acá o hacé clic para explorar</p>
-              <span class="text-muted-custom small">Soporta PDF y DOCX hasta 4 MB</span>
+              <span id="cv-file-help" class="text-muted-custom small">PDF o DOCX · hasta 4 MB</span>
             </div>
           } @else {
             <div class="file-chip d-flex align-items-center justify-content-between">
@@ -73,21 +93,31 @@
                   </div>
                 </div>
               </div>
-              <button type="button" class="btn-icon-danger" title="Quitar archivo" (click)="removeFile()">
-                <i class="bi bi-trash3"></i>
+              <button
+                type="button"
+                class="btn-icon-danger"
+                [attr.aria-label]="'Quitar ' + selectedFile()!.name"
+                (click)="removeFile()"
+              >
+                <i class="bi bi-trash3" aria-hidden="true"></i>
               </button>
             </div>
           }
+          <p class="privacy-note mb-0">
+            <i class="bi bi-shield-check" aria-hidden="true"></i>
+            Tu archivo se procesa para adaptar el CV y no se guarda al terminar.
+          </p>
         </div>
 
         <!-- Paso 2: URL de Oferta -->
         <div class="mb-3">
-          <label class="field-label">
+          <label class="field-label" for="job-url">
             <i class="bi bi-link-45deg me-1 text-orange"></i>
-            Enlace de la Oferta (Opcional)
+            Enlace de la oferta <span class="optional-label">(opcional)</span>
           </label>
           <div class="input-group">
             <input
+              id="job-url"
               type="url"
               class="form-control studio-input"
               placeholder="https://www.linkedin.com/jobs/view/..."
@@ -98,6 +128,7 @@
               type="button"
               class="btn btn-cobalt"
               [disabled]="isExtractingUrl()"
+              [attr.aria-busy]="isExtractingUrl() ? 'true' : null"
               (click)="extractFromUrl()"
             >
               @if (isExtractingUrl()) {
@@ -114,19 +145,29 @@
         <!-- Paso 3: Descripción Manual / Extraída -->
         <div class="mb-4">
           <div class="d-flex justify-content-between align-items-center mb-1">
-            <label class="field-label mb-0">
+            <label class="field-label mb-0" for="job-description">
               <i class="bi bi-briefcase me-1 text-orange"></i>
-              Descripción del Puesto y Requisitos
+              Descripción de la oferta
             </label>
-            <span class="char-counter">{{ jobDescription().length }} caracteres</span>
+            <span
+              class="char-counter"
+              [class.char-counter-ready]="jobDescription().trim().length >= 20"
+            >
+              {{ jobDescription().trim().length }} / 20 mínimo
+            </span>
           </div>
           <textarea
+            id="job-description"
             rows="9"
             class="form-control studio-input"
             placeholder="Pegá la descripción completa: tareas, requisitos, experiencia y habilidades del puesto..."
             [ngModel]="jobDescription()"
-            (ngModelChange)="jobDescription.set($event)"
+            (ngModelChange)="onJobDescriptionChange($event)"
+            aria-describedby="job-description-help"
           ></textarea>
+          <div id="job-description-help" class="field-help">
+            Podés pegar el texto o extraerlo desde un enlace público.
+          </div>
         </div>
 
         <!-- Acción Principal -->
@@ -134,14 +175,15 @@
           type="button"
           class="btn btn-knicks-primary w-100 py-2.5"
           [disabled]="isAdapting()"
+          [attr.aria-busy]="isAdapting() ? 'true' : null"
           (click)="generateAdaptedCv()"
         >
           @if (isAdapting()) {
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            Analizando oferta y adaptando perfil con IA...
+            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+            Preparando tu CV para esta oferta...
           } @else {
-            <i class="bi bi-stars me-2"></i>
-            Adaptar CV a esta Oferta
+            <i class="bi bi-stars me-2" aria-hidden="true"></i>
+            Adaptar mi CV
           }
         </button>
       </div>
@@ -150,34 +192,55 @@
     <!-- PANEL DERECHO: RESULTADO Y EXPORTACIÓN -->
     <div class="col-12 col-lg-7">
       <div class="studio-card h-100 d-flex flex-column">
-        <div class="card-header-custom d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div
+          class="card-header-custom d-flex flex-wrap align-items-center justify-content-between gap-2"
+        >
           <div>
-            <span class="step-tag">02 / OUTPUT ATS</span>
-            <h2 class="panel-title">Vista Previa del Currículum Adaptado</h2>
+            <span class="step-tag">02 · Revisá el resultado</span>
+            <h2 class="panel-title">Tu CV para esta oferta</h2>
           </div>
 
           @if (adaptedCv()) {
-            <div class="d-flex flex-wrap gap-2">
-              <button type="button" class="btn btn-outline-studio btn-sm" (click)="copyFormattedText()">
+            <div class="cv-actions d-flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="btn btn-outline-studio btn-sm"
+                [attr.aria-pressed]="isEditing()"
+                (click)="isEditing.update((editing) => !editing)"
+              >
+                @if (isEditing()) {
+                  <i class="bi bi-check2 me-1" aria-hidden="true"></i>
+                  Terminar edición
+                } @else {
+                  <i class="bi bi-pencil me-1" aria-hidden="true"></i>
+                  Corregir CV
+                }
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-studio btn-sm"
+                (click)="copyFormattedText()"
+              >
                 @if (copiedSuccess()) {
-                  <i class="bi bi-check2 text-orange me-1"></i>
+                  <i class="bi bi-check2 text-orange me-1" aria-hidden="true"></i>
                   Copiado
                 } @else {
-                  <i class="bi bi-clipboard me-1"></i>
-                  Copiar Texto
+                  <i class="bi bi-clipboard me-1" aria-hidden="true"></i>
+                  Copiar texto
                 }
               </button>
 
               <button
                 type="button"
                 class="btn btn-cobalt btn-sm"
+                aria-label="Descargar CV en formato DOCX"
                 [disabled]="isExportingDocx()"
                 (click)="downloadDocx()"
               >
                 @if (isExportingDocx()) {
                   <span class="spinner-border spinner-border-sm me-1"></span>
                 } @else {
-                  <i class="bi bi-file-earmark-word me-1"></i>
+                  <i class="bi bi-file-earmark-word me-1" aria-hidden="true"></i>
                 }
                 DOCX
               </button>
@@ -185,13 +248,14 @@
               <button
                 type="button"
                 class="btn btn-knicks-primary btn-sm"
+                aria-label="Descargar CV en formato PDF"
                 [disabled]="isExportingPdf()"
                 (click)="downloadPdf()"
               >
                 @if (isExportingPdf()) {
                   <span class="spinner-border spinner-border-sm me-1"></span>
                 } @else {
-                  <i class="bi bi-file-earmark-pdf me-1"></i>
+                  <i class="bi bi-file-earmark-pdf me-1" aria-hidden="true"></i>
                 }
                 PDF
               </button>
@@ -199,71 +263,173 @@
           }
         </div>
 
+        @if (adaptedCv()) {
+          <div class="review-guidance" role="note" aria-live="polite">
+            @if (isEditing()) {
+              <i class="bi bi-pencil-square" aria-hidden="true"></i>
+              Tocá cualquier texto del CV para corregirlo. Los cambios se usan al copiar o descargar
+              y no se guardan.
+            } @else {
+              <i class="bi bi-check2-circle" aria-hidden="true"></i>
+              Antes de enviarlo, revisá tus datos de contacto, fechas y logros.
+            }
+          </div>
+        }
+
         <!-- Estado Vacío -->
         @if (!adaptedCv() && !isAdapting()) {
-          <div class="empty-stage flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center p-4">
+          <div
+            class="empty-stage flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center p-4"
+          >
             <div class="empty-badge mb-3">
               <i class="bi bi-file-earmark-richtext"></i>
             </div>
-            <h3 class="h5 fw-semibold text-white mb-2">Tu CV optimizado aparecerá acá</h3>
+            <h3 class="h5 fw-semibold text-white mb-2">Acá vas a revisar tu adaptación</h3>
             <p class="text-secondary small max-w-md mb-0">
-              Subí tu CV original, pegá la descripción del puesto al que querés postularte y la IA reorganizará tus habilidades, proyectos y experiencia para destacar frente al filtro ATS sin inventar datos.
+              Cargá tu CV y la oferta. La adaptación reorganiza tu experiencia sin agregar datos que
+              no estén en tu perfil.
             </p>
           </div>
         }
 
         <!-- Estado Cargando -->
         @if (isAdapting()) {
-          <div class="empty-stage flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center p-4">
-            <div class="loader-ring mb-3"></div>
-            <h3 class="h5 fw-semibold text-white mb-1">Alineando palabras clave y prioridades...</h3>
-            <p class="text-secondary small mb-0">Identificando las habilidades relevantes y la experiencia transferible para este puesto.</p>
+          <div
+            class="empty-stage flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center p-4"
+            role="status"
+            aria-live="polite"
+          >
+            <div class="loader-ring mb-3" aria-hidden="true"></div>
+            <h3 class="h5 fw-semibold text-white mb-1">Leyendo tu experiencia y la oferta</h3>
+            <p class="text-secondary small mb-0">
+              Estamos preparando una versión para que la revises. Puede tardar unos segundos.
+            </p>
           </div>
         }
 
         <!-- Documento Renderizado -->
         @if (adaptedCv() && !isAdapting()) {
           <div class="cv-paper-wrapper flex-grow-1">
-            <article class="cv-document">
+            <article class="cv-document" [class.is-editing]="isEditing()">
               <!-- Encabezado CV -->
               <header class="cv-doc-header text-center">
-                <h1 class="cv-name">{{ adaptedCv()!.personalInfo.fullName }}</h1>
-                <div class="cv-target-role">{{ adaptedCv()!.personalInfo.targetRoleTitle }}</div>
+                <h1
+                  class="cv-name"
+                  appCvEditableField="personalInfo.fullName"
+                  [cvEditing]="isEditing()"
+                  cvFieldLabel="Nombre completo"
+                  (cvFieldChange)="onCvFieldChange($event)"
+                >
+                  {{ adaptedCv()!.personalInfo.fullName }}
+                </h1>
+                <div
+                  class="cv-target-role"
+                  appCvEditableField="personalInfo.targetRoleTitle"
+                  [cvEditing]="isEditing()"
+                  cvFieldLabel="Puesto objetivo"
+                  (cvFieldChange)="onCvFieldChange($event)"
+                >
+                  {{ adaptedCv()!.personalInfo.targetRoleTitle }}
+                </div>
                 <div class="cv-contacts">
-                  @if (adaptedCv()!.personalInfo.location) {
-                    <span>{{ adaptedCv()!.personalInfo.location }}</span>
+                  @if (adaptedCv()!.personalInfo.location || isEditing()) {
+                    <span
+                      appCvEditableField="personalInfo.location"
+                      [cvEditing]="isEditing()"
+                      cvFieldLabel="Ubicación"
+                      (cvFieldChange)="onCvFieldChange($event)"
+                      >{{ adaptedCv()!.personalInfo.location }}</span
+                    >
                   }
-                  @if (adaptedCv()!.personalInfo.phone) {
-                    <span>• {{ adaptedCv()!.personalInfo.phone }}</span>
+                  @if (adaptedCv()!.personalInfo.phone || isEditing()) {
+                    <span aria-hidden="true">•</span>
+                    <span
+                      appCvEditableField="personalInfo.phone"
+                      [cvEditing]="isEditing()"
+                      cvFieldLabel="Teléfono"
+                      (cvFieldChange)="onCvFieldChange($event)"
+                      >{{ adaptedCv()!.personalInfo.phone }}</span
+                    >
                   }
-                  @if (adaptedCv()!.personalInfo.email) {
-                    <span>• {{ adaptedCv()!.personalInfo.email }}</span>
+                  @if (adaptedCv()!.personalInfo.email || isEditing()) {
+                    <span aria-hidden="true">•</span>
+                    <span
+                      appCvEditableField="personalInfo.email"
+                      [cvEditing]="isEditing()"
+                      cvFieldLabel="Correo electrónico"
+                      (cvFieldChange)="onCvFieldChange($event)"
+                      >{{ adaptedCv()!.personalInfo.email }}</span
+                    >
                   }
-                  @if (adaptedCv()!.personalInfo.linkedin) {
-                    <span>• {{ adaptedCv()!.personalInfo.linkedin }}</span>
+                  @if (adaptedCv()!.personalInfo.linkedin || isEditing()) {
+                    <span aria-hidden="true">•</span>
+                    <span
+                      appCvEditableField="personalInfo.linkedin"
+                      [cvEditing]="isEditing()"
+                      cvFieldLabel="LinkedIn"
+                      (cvFieldChange)="onCvFieldChange($event)"
+                      >{{ adaptedCv()!.personalInfo.linkedin }}</span
+                    >
                   }
-                  @if (adaptedCv()!.personalInfo.github) {
-                    <span>• {{ adaptedCv()!.personalInfo.github }}</span>
+                  @if (adaptedCv()!.personalInfo.github || isEditing()) {
+                    <span aria-hidden="true">•</span>
+                    <span
+                      appCvEditableField="personalInfo.github"
+                      [cvEditing]="isEditing()"
+                      cvFieldLabel="GitHub"
+                      (cvFieldChange)="onCvFieldChange($event)"
+                      >{{ adaptedCv()!.personalInfo.github }}</span
+                    >
+                  }
+                  @if (adaptedCv()!.personalInfo.portfolio || isEditing()) {
+                    <span aria-hidden="true">•</span>
+                    <span
+                      appCvEditableField="personalInfo.portfolio"
+                      [cvEditing]="isEditing()"
+                      cvFieldLabel="Portafolio"
+                      (cvFieldChange)="onCvFieldChange($event)"
+                      >{{ adaptedCv()!.personalInfo.portfolio }}</span
+                    >
                   }
                 </div>
               </header>
 
               <!-- Perfil Profesional -->
-              @if (adaptedCv()!.professionalSummary) {
+              @if (adaptedCv()!.professionalSummary || isEditing()) {
                 <section class="cv-section">
-                  <h4 class="cv-section-title">Perfil Profesional</h4>
-                  <p class="cv-text">{{ adaptedCv()!.professionalSummary }}</p>
+                  <h4 class="cv-section-title" contenteditable="false">Perfil Profesional</h4>
+                  <p
+                    class="cv-text"
+                    appCvEditableField="professionalSummary"
+                    [cvEditing]="isEditing()"
+                    cvFieldLabel="Perfil profesional"
+                    [cvFieldMultiline]="true"
+                    (cvFieldChange)="onCvFieldChange($event)"
+                  >
+                    {{ adaptedCv()!.professionalSummary }}
+                  </p>
                 </section>
               }
 
               <!-- Habilidades clave -->
               @if (adaptedCv()!.keySkills.length) {
                 <section class="cv-section">
-                  <h4 class="cv-section-title">Habilidades clave</h4>
-                  @for (group of adaptedCv()!.keySkills; track group.category) {
+                  <h4 class="cv-section-title" contenteditable="false">Habilidades clave</h4>
+                  @for (group of adaptedCv()!.keySkills; track $index; let i = $index) {
                     <div class="cv-skill-row">
-                      <strong>{{ group.category }}:</strong>
-                      <span>{{ group.skills.join(', ') }}</span>
+                      <strong
+                        appCvEditableField="keySkills.{{ i }}.category"
+                        [cvEditing]="isEditing()"
+                        cvFieldLabel="Categoría de habilidades"
+                        (cvFieldChange)="onCvFieldChange($event)"
+                        >{{ group.category }}</strong>:
+                      <span
+                        appCvEditableField="keySkills.{{ i }}.skills"
+                        [cvEditing]="isEditing()"
+                        cvFieldLabel="Habilidades, separadas por coma"
+                        (cvFieldChange)="onCvFieldChange($event)"
+                        >{{ group.skills.join(', ') }}</span
+                      >
                     </div>
                   }
                 </section>
@@ -272,16 +438,58 @@
               <!-- Experiencia Profesional -->
               @if (adaptedCv()!.workExperience.length) {
                 <section class="cv-section">
-                  <h4 class="cv-section-title">Experiencia Profesional</h4>
-                  @for (exp of adaptedCv()!.workExperience; track exp.company + exp.role) {
+                  <h4 class="cv-section-title" contenteditable="false">Experiencia Profesional</h4>
+                  @for (exp of adaptedCv()!.workExperience; track $index; let i = $index) {
                     <div class="cv-item">
                       <div class="d-flex justify-content-between flex-wrap">
-                        <strong>{{ exp.role }} — {{ exp.company }}</strong>
-                        <span class="cv-period">{{ exp.period }}</span>
+                        <strong>
+                          <span
+                            appCvEditableField="workExperience.{{ i }}.role"
+                            [cvEditing]="isEditing()"
+                            cvFieldLabel="Puesto"
+                            (cvFieldChange)="onCvFieldChange($event)"
+                            >{{ exp.role }}</span
+                          >
+                          —
+                          <span
+                            appCvEditableField="workExperience.{{ i }}.company"
+                            [cvEditing]="isEditing()"
+                            cvFieldLabel="Empresa"
+                            (cvFieldChange)="onCvFieldChange($event)"
+                            >{{ exp.company }}</span
+                          >
+                        </strong>
+                        <span
+                          class="cv-period"
+                          appCvEditableField="workExperience.{{ i }}.period"
+                          [cvEditing]="isEditing()"
+                          cvFieldLabel="Período de trabajo"
+                          (cvFieldChange)="onCvFieldChange($event)"
+                          >{{ exp.period }}</span
+                        >
                       </div>
+                      @if (exp.location || isEditing()) {
+                        <div
+                          class="cv-period"
+                          appCvEditableField="workExperience.{{ i }}.location"
+                          [cvEditing]="isEditing()"
+                          cvFieldLabel="Ubicación del trabajo"
+                          (cvFieldChange)="onCvFieldChange($event)"
+                        >
+                          {{ exp.location }}
+                        </div>
+                      }
                       <ul class="cv-list">
-                        @for (ach of exp.achievements; track ach) {
-                          <li>{{ ach }}</li>
+                        @for (ach of exp.achievements; track $index; let j = $index) {
+                          <li
+                            appCvEditableField="workExperience.{{ i }}.achievements.{{ j }}"
+                            [cvEditing]="isEditing()"
+                            cvFieldLabel="Logro"
+                            [cvFieldMultiline]="true"
+                            (cvFieldChange)="onCvFieldChange($event)"
+                          >
+                            {{ ach }}
+                          </li>
                         }
                       </ul>
                     </div>
@@ -292,22 +500,71 @@
               <!-- Proyectos Académicos y Personales -->
               @if (adaptedCv()!.academicAndPersonalProjects.length) {
                 <section class="cv-section">
-                  <h4 class="cv-section-title">Proyectos Relevantes</h4>
-                  @for (proj of adaptedCv()!.academicAndPersonalProjects; track proj.name) {
+                  <h4 class="cv-section-title" contenteditable="false">Proyectos Relevantes</h4>
+                  @for (
+                    proj of adaptedCv()!.academicAndPersonalProjects;
+                    track $index;
+                    let i = $index
+                  ) {
                     <div class="cv-item">
                       <div class="d-flex justify-content-between flex-wrap align-items-baseline">
                         <div>
-                          <strong>{{ proj.name }}</strong>
-                          <span class="proj-type-tag ms-2">[{{ proj.type }}]</span>
+                          <strong
+                            appCvEditableField="academicAndPersonalProjects.{{ i }}.name"
+                            [cvEditing]="isEditing()"
+                            cvFieldLabel="Nombre del proyecto"
+                            (cvFieldChange)="onCvFieldChange($event)"
+                            >{{ proj.name }}</strong
+                          >
+                          @if (isEditing()) {
+                            <select
+                              class="cv-type-editor ms-2"
+                              [ngModel]="proj.type"
+                              [attr.aria-label]="'Tipo de proyecto: ' + proj.name"
+                              (ngModelChange)="updateProjectType(i, $event)"
+                            >
+                              <option value="Académico">Académico</option>
+                              <option value="Personal">Personal</option>
+                              <option value="Freelance">Freelance</option>
+                            </select>
+                          } @else {
+                            <span class="proj-type-tag ms-2">[{{ proj.type }}]</span>
+                          }
                         </div>
-                        @if (proj.toolsAndMethods.length) {
-                          <span class="cv-tools-methods">{{ proj.toolsAndMethods.join(', ') }}</span>
+                        @if (proj.toolsAndMethods.length || isEditing()) {
+                          <span
+                            class="cv-tools-methods"
+                            appCvEditableField="academicAndPersonalProjects.{{ i }}.toolsAndMethods"
+                            [cvEditing]="isEditing()"
+                            cvFieldLabel="Herramientas y métodos, separados por coma"
+                            (cvFieldChange)="onCvFieldChange($event)"
+                            >{{ proj.toolsAndMethods.join(', ') }}</span
+                          >
                         }
                       </div>
-                      <p class="cv-text mb-1">{{ proj.description }}</p>
+                      <p
+                        class="cv-text mb-1"
+                        appCvEditableField="academicAndPersonalProjects.{{ i }}.description"
+                        [cvEditing]="isEditing()"
+                        cvFieldLabel="Descripción del proyecto"
+                        [cvFieldMultiline]="true"
+                        (cvFieldChange)="onCvFieldChange($event)"
+                      >
+                        {{ proj.description }}
+                      </p>
                       <ul class="cv-list">
-                        @for (hl of proj.highlights; track hl) {
-                          <li>{{ hl }}</li>
+                        @for (hl of proj.highlights; track $index; let j = $index) {
+                          <li
+                            appCvEditableField="academicAndPersonalProjects.{{ i }}.highlights.{{
+                              j
+                            }}"
+                            [cvEditing]="isEditing()"
+                            cvFieldLabel="Aspecto destacado del proyecto"
+                            [cvFieldMultiline]="true"
+                            (cvFieldChange)="onCvFieldChange($event)"
+                          >
+                            {{ hl }}
+                          </li>
                         }
                       </ul>
                     </div>
@@ -318,14 +575,43 @@
               <!-- Formación Académica -->
               @if (adaptedCv()!.education.length) {
                 <section class="cv-section">
-                  <h4 class="cv-section-title">Formación Académica</h4>
-                  @for (edu of adaptedCv()!.education; track edu.degree) {
+                  <h4 class="cv-section-title" contenteditable="false">Formación Académica</h4>
+                  @for (edu of adaptedCv()!.education; track $index; let i = $index) {
                     <div class="d-flex justify-content-between flex-wrap mb-1">
                       <div>
-                        <strong>{{ edu.degree }}</strong> — {{ edu.institution }}
+                        <strong
+                          appCvEditableField="education.{{ i }}.degree"
+                          [cvEditing]="isEditing()"
+                          cvFieldLabel="Título o formación"
+                          (cvFieldChange)="onCvFieldChange($event)"
+                          >{{ edu.degree }}</strong
+                        >
+                        —
+                        <span
+                          appCvEditableField="education.{{ i }}.institution"
+                          [cvEditing]="isEditing()"
+                          cvFieldLabel="Institución educativa"
+                          (cvFieldChange)="onCvFieldChange($event)"
+                          >{{ edu.institution }}</span
+                        >
                       </div>
                       <span class="cv-period">
-                        {{ edu.period }} {{ edu.status ? '(' + edu.status + ')' : '' }}
+                        <span
+                          appCvEditableField="education.{{ i }}.period"
+                          [cvEditing]="isEditing()"
+                          cvFieldLabel="Período de formación"
+                          (cvFieldChange)="onCvFieldChange($event)"
+                          >{{ edu.period }}</span
+                        >
+                        @if (edu.status || isEditing()) {
+                          (<span
+                            appCvEditableField="education.{{ i }}.status"
+                            [cvEditing]="isEditing()"
+                            cvFieldLabel="Estado de la formación"
+                            (cvFieldChange)="onCvFieldChange($event)"
+                            >{{ edu.status }}</span
+                          >)
+                        }
                       </span>
                     </div>
                   }
@@ -335,10 +621,21 @@
               <!-- Certificaciones y Cursos -->
               @if (adaptedCv()!.certificationsAndCourses?.length) {
                 <section class="cv-section">
-                  <h4 class="cv-section-title">Certificaciones y Cursos</h4>
+                  <h4 class="cv-section-title" contenteditable="false">Certificaciones y Cursos</h4>
                   <ul class="cv-list">
-                    @for (cert of adaptedCv()!.certificationsAndCourses; track cert) {
-                      <li>{{ cert }}</li>
+                    @for (
+                      cert of adaptedCv()!.certificationsAndCourses;
+                      track $index;
+                      let i = $index
+                    ) {
+                      <li
+                        appCvEditableField="certificationsAndCourses.{{ i }}"
+                        [cvEditing]="isEditing()"
+                        cvFieldLabel="Certificación o curso"
+                        (cvFieldChange)="onCvFieldChange($event)"
+                      >
+                        {{ cert }}
+                      </li>
                     }
                   </ul>
                 </section>
@@ -347,8 +644,21 @@
               <!-- Idiomas -->
               @if (adaptedCv()!.languages?.length) {
                 <section class="cv-section mb-0">
-                  <h4 class="cv-section-title">Idiomas</h4>
-                  <p class="cv-text mb-0">{{ adaptedCv()!.languages!.join('  •  ') }}</p>
+                  <h4 class="cv-section-title" contenteditable="false">Idiomas</h4>
+                  <p class="cv-text mb-0">
+                    @for (language of adaptedCv()!.languages; track $index; let i = $index) {
+                      @if (i > 0) {
+                        <span aria-hidden="true"> · </span>
+                      }
+                      <span
+                        appCvEditableField="languages.{{ i }}"
+                        [cvEditing]="isEditing()"
+                        cvFieldLabel="Idioma"
+                        (cvFieldChange)="onCvFieldChange($event)"
+                        >{{ language }}</span
+                      >
+                    }
+                  </p>
                 </section>
               }
             </article>
