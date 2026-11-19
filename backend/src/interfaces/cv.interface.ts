@@ -43,3 +43,18 @@ export interface AdaptedCv {
     certificationsAndCourses?: string[];
     languages?: string[];
 }
+
+/** Datos que el candidato elige para una postulación espontánea. */
+export interface ProactiveContext {
+    sector: string;
+    organization: string;
+    organizationKind: string;
+    desiredRole: string;
+    note: string;
+}
+
+/** Resultado de una postulación espontánea: CV adaptado + nota para acompañar el envío. */
+export interface ProactiveResult {
+    cv: AdaptedCv;
+    note: string;
+}

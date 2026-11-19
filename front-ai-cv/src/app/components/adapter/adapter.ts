@@ -1,10 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CvService } from '../../services/cv.service';
-import { AdaptedCv } from '../../interfaces/cv.interface';
+import { AdaptedCv, ProactiveContext } from '../../interfaces/cv.interface';
+import {
+  PROACTIVE_SECTORS,
+  ProactiveOrganization,
+} from '../../data/proactive-catalog';
 import { CvEditableFieldDirective, CvFieldChange } from './cv-editable-field.directive';
 import { updateCvField, updateCvProjectType } from './cv-field-editor';
+
+type ApplicationMode = 'offer' | 'proactive';
 
 @Component({
   selector: 'app-adapter',
@@ -15,6 +21,28 @@ import { updateCvField, updateCvProjectType } from './cv-field-editor';
 })
 export class Adapter {
   private readonly cvService = inject(CvService);
+
+  readonly mode = signal<ApplicationMode>('offer');
+  readonly proactiveSectors = PROACTIVE_SECTORS;
+  readonly selectedSectorId = signal<string>('');
+  readonly selectedOrganization = signal<ProactiveOrganization | null>(null);
+  readonly customOrganization = signal<string>('');
+  readonly desiredRole = signal<string>('');
+  readonly proactiveNote = signal<string>('');
+  readonly coverNote = signal<string | null>(null);
+  readonly copiedNoteSuccess = signal<boolean>(false);
+
+  readonly selectedSector = computed(
+    () => this.proactiveSectors.find((sector) => sector.id === this.selectedSectorId()) ?? null,
+  );
+  readonly sectorOrganizations = computed(() => this.selectedSector()?.organizations ?? []);
+  readonly organizationName = computed(() => {
+    const custom = this.customOrganization().trim();
+    return custom || this.selectedOrganization()?.name || '';
+  });
+  readonly organizationKind = computed(() =>
+    this.customOrganization().trim() ? 'Empresa' : (this.selectedOrganization()?.kind ?? ''),
+  );
 
   selectedFile = signal<File | null>(null);
   isDragging = signal<boolean>(false);
@@ -83,20 +111,62 @@ export class Adapter {
     this.clearAdaptedCvIfInputsChanged();
   }
 
+  setMode(mode: ApplicationMode): void {
+    if (mode === this.mode()) return;
+    this.mode.set(mode);
+    this.errorMessage.set(null);
+    this.clearAdaptedCvIfInputsChanged(
+      'Cambiaste el modo de postulación. Generá el CV nuevamente para el destino elegido.',
+    );
+  }
+
+  selectSector(sectorId: string): void {
+    this.selectedSectorId.set(sectorId);
+    this.selectedOrganization.set(null);
+    this.customOrganization.set('');
+    this.clearAdaptedCvIfInputsChanged(
+      'Cambiaste el rubro. Elegí la organización y generá el CV nuevamente.',
+    );
+  }
+
+  selectOrganization(organization: ProactiveOrganization): void {
+    this.selectedOrganization.set(organization);
+    this.customOrganization.set('');
+    this.clearAdaptedCvIfInputsChanged();
+  }
+
+  onCustomOrganizationChange(value: string): void {
+    this.customOrganization.set(value);
+    if (value.trim()) this.selectedOrganization.set(null);
+    this.clearAdaptedCvIfInputsChanged();
+  }
+
+  onDesiredRoleChange(value: string): void {
+    this.desiredRole.set(value);
+    this.clearAdaptedCvIfInputsChanged();
+  }
+
+  onProactiveNoteChange(value: string): void {
+    this.proactiveNote.set(value);
+    this.clearAdaptedCvIfInputsChanged();
+  }
+
   onJobDescriptionChange(description: string): void {
     this.jobDescription.set(description);
     this.clearAdaptedCvIfInputsChanged();
   }
 
-  private clearAdaptedCvIfInputsChanged(): void {
+  private clearAdaptedCvIfInputsChanged(
+    message = 'Cambiaste los datos de la postulación. Adaptá el CV nuevamente antes de descargarlo.',
+  ): void {
     if (!this.adaptedCv()) return;
 
     this.adaptedCv.set(null);
+    this.coverNote.set(null);
+    this.copiedNoteSuccess.set(false);
     this.isEditing.set(false);
     this.copiedSuccess.set(false);
-    this.infoMessage.set(
-      'Cambiaste los datos de la postulación. Adaptá el CV nuevamente antes de descargarlo.',
-    );
+    this.infoMessage.set(message);
   }
 
   extractFromUrl(): void {
@@ -136,13 +206,18 @@ export class Adapter {
     if (this.isAdapting()) return;
 
     const file = this.selectedFile();
-    const desc = this.jobDescription().trim();
 
     if (!file) {
       this.errorMessage.set('Adjuntá tu CV en PDF o DOCX.');
       return;
     }
 
+    if (this.mode() === 'proactive') {
+      this.generateProactiveCv(file);
+      return;
+    }
+
+    const desc = this.jobDescription().trim();
     if (desc.length < 20) {
       this.errorMessage.set('Ingresá una descripción de oferta válida (mínimo 20 caracteres).');
       return;
@@ -181,6 +256,84 @@ export class Adapter {
         if (!inputsStillMatch()) {
           this.infoMessage.set(
             'Cambiaste los datos mientras se procesaba. Adaptá el CV nuevamente con la versión actual.',
+          );
+          return;
+        }
+        this.errorMessage.set(
+          err?.error?.msg ||
+            'No pudimos conectar con el servicio. Verificá tu conexión e intentá de nuevo.',
+        );
+      },
+    });
+  }
+
+  private generateProactiveCv(file: File): void {
+    const sector = this.selectedSector()?.label.trim() || '';
+    const organization = this.organizationName().trim();
+    const organizationKind = this.organizationKind();
+    const desiredRole = this.desiredRole().trim();
+    const note = this.proactiveNote().trim();
+    const sectorId = this.selectedSectorId();
+
+    if (!sector) {
+      this.errorMessage.set('Elegí el rubro de la organización.');
+      return;
+    }
+
+    if (organization.length < 3) {
+      this.errorMessage.set('Elegí una empresa u organismo, o escribí su nombre.');
+      return;
+    }
+
+    this.errorMessage.set(null);
+    this.infoMessage.set(null);
+    this.adaptedCv.set(null);
+    this.coverNote.set(null);
+    this.copiedNoteSuccess.set(false);
+    this.isEditing.set(false);
+    this.copiedSuccess.set(false);
+    this.isAdapting.set(true);
+
+    const inputsStillMatch = () =>
+      this.selectedFile() === file &&
+      this.mode() === 'proactive' &&
+      this.selectedSectorId() === sectorId &&
+      this.organizationName().trim() === organization &&
+      this.desiredRole().trim() === desiredRole &&
+      this.proactiveNote().trim() === note;
+
+    const context: ProactiveContext = {
+      sector,
+      organization,
+      organizationKind,
+      desiredRole,
+      note,
+    };
+
+    this.cvService.proactiveCv(file, context).subscribe({
+      next: (res) => {
+        this.isAdapting.set(false);
+        if (!inputsStillMatch()) {
+          this.infoMessage.set(
+            'Cambiaste los datos mientras se procesaba. Generá el CV nuevamente con la versión actual.',
+          );
+          return;
+        }
+        if (res.status === '1' && res.data) {
+          this.adaptedCv.set(res.data.cv);
+          this.coverNote.set(res.data.note);
+          this.infoMessage.set(
+            'CV espontáneo listo. Revisá el texto y la nota antes de enviarlos.',
+          );
+        } else {
+          this.errorMessage.set(res.msg || 'No se pudo generar el CV espontáneo.');
+        }
+      },
+      error: (err) => {
+        this.isAdapting.set(false);
+        if (!inputsStillMatch()) {
+          this.infoMessage.set(
+            'Cambiaste los datos mientras se procesaba. Generá el CV nuevamente con la versión actual.',
           );
           return;
         }
@@ -336,6 +489,26 @@ export class Adapter {
         this.errorMessage.set(
           'No se pudo copiar el texto. Revisá los permisos del navegador o descargá el CV.',
         );
+      });
+  }
+
+  copyCoverNote(): void {
+    const note = this.coverNote()?.trim() || '';
+    if (!note) return;
+
+    if (!navigator.clipboard?.writeText) {
+      this.errorMessage.set('El navegador no permite copiar. Seleccioná el texto de la nota manualmente.');
+      return;
+    }
+
+    navigator.clipboard
+      .writeText(note)
+      .then(() => {
+        this.copiedNoteSuccess.set(true);
+        setTimeout(() => this.copiedNoteSuccess.set(false), 2500);
+      })
+      .catch(() => {
+        this.errorMessage.set('No se pudo copiar la nota. Seleccioná el texto manualmente.');
       });
   }
 

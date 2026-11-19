@@ -28,7 +28,11 @@ app.use(cors({ origin: process.env.CORS_ORIGIN || true }));
 // recursos (extracción, IA, exportación) pasa por límite por IP.
 const protectedPaths = ['/cv', '/api/cv', '/job', '/api/job'];
 app.use(protectedPaths, rateLimiter);
-app.use(['/cv/adapt', '/api/cv/adapt'], dailyAdaptCap);
+// Ambas generaciones consumen IA: comparten el cupo diario.
+app.use(
+    ['/cv/adapt', '/api/cv/adapt', '/cv/proactive', '/api/cv/proactive'],
+    dailyAdaptCap
+);
 
 // Las rutas se montan en "/" y "/api" para que el mismo código sirva tanto
 // en el servidor local como en la Function de Vercel (api/[...path].ts),
