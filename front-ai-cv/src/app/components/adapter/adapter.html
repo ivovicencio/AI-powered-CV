@@ -37,13 +37,47 @@
     </div>
   }
 
+  <div class="mode-switch" role="group" aria-label="Elegí cómo querés usar CVOLVE">
+    <button
+      type="button"
+      class="mode-option"
+      [class.active]="mode() === 'offer'"
+      [attr.aria-pressed]="mode() === 'offer'"
+      (click)="setMode('offer')"
+    >
+      <i class="bi bi-briefcase" aria-hidden="true"></i>
+      <span class="mode-copy">
+        <strong>Tengo una oferta</strong>
+        <small>Adaptá tu CV a una oferta concreta</small>
+      </span>
+    </button>
+    <button
+      type="button"
+      class="mode-option"
+      [class.active]="mode() === 'proactive'"
+      [attr.aria-pressed]="mode() === 'proactive'"
+      (click)="setMode('proactive')"
+    >
+      <i class="bi bi-send" aria-hidden="true"></i>
+      <span class="mode-copy">
+        <strong>Elegí a quién enviarlo</strong>
+        <small>CV espontáneo, sin oferta publicada</small>
+      </span>
+    </button>
+  </div>
+
   <div class="row g-4">
     <!-- PANEL IZQUIERDO: ENTRADA DE DATOS -->
     <div class="col-12 col-lg-5">
       <div class="studio-card h-100">
         <div class="card-header-custom">
-          <span class="step-tag">01 · Prepará tu postulación</span>
-          <h2 class="panel-title">Tu CV y la oferta</h2>
+          @if (mode() === 'offer') {
+            <span class="step-tag">01 · Prepará tu postulación</span>
+            <h2 class="panel-title">Tu CV y la oferta</h2>
+          } @else {
+            <span class="step-tag">01 · Elegí destino y prepará tu CV</span>
+            <h2 class="panel-title">Tu CV para una empresa</h2>
+          }
         </div>
 
         <!-- Paso 1: Subida de CV -->
@@ -109,8 +143,9 @@
           </p>
         </div>
 
-        <!-- Paso 2: URL de Oferta -->
-        <div class="mb-3">
+        @if (mode() === 'offer') {
+          <!-- Paso 2: URL de Oferta -->
+          <div class="mb-3">
           <label class="field-label" for="job-url">
             <i class="bi bi-link-45deg me-1 text-orange"></i>
             Enlace de la oferta <span class="optional-label">(opcional)</span>
@@ -169,6 +204,130 @@
             Podés pegar el texto o extraerlo desde un enlace público.
           </div>
         </div>
+        } @else {
+          <!-- Postulación espontánea: elegí rubro y organización -->
+          <div class="proactive-block">
+            <p class="proactive-hint">
+              <i class="bi bi-info-circle" aria-hidden="true"></i>
+              No hace falta que haya una oferta: preparás un CV y una nota para la organización que
+              elegiste. CVOLVE no envía nada; el envío lo hacés vos.
+            </p>
+
+            <div class="mb-3">
+              <label class="field-label" for="proactive-sector">
+                <i class="bi bi-diagram-3 me-1 text-orange" aria-hidden="true"></i>
+                1 · Rubro de la organización
+              </label>
+              <select
+                id="proactive-sector"
+                class="form-select studio-input"
+                [ngModel]="selectedSectorId()"
+                (ngModelChange)="selectSector($event)"
+              >
+                <option value="">Elegí un rubro...</option>
+                @for (sector of proactiveSectors; track sector.id) {
+                  <option [value]="sector.id">{{ sector.label }}</option>
+                }
+              </select>
+            </div>
+
+            @if (selectedSector()) {
+              <div class="mb-3">
+                <span class="field-label d-block">
+                  <i class="bi bi-building me-1 text-orange" aria-hidden="true"></i>
+                  2 · Organizaciones de {{ selectedSector()!.label }}
+                </span>
+                <div class="org-list" role="radiogroup" aria-label="Organizaciones del rubro">
+                  @for (org of sectorOrganizations(); track org.name) {
+                    <div
+                      class="org-row"
+                      [class.selected]="
+                        selectedOrganization()?.name === org.name && !customOrganization().trim()
+                      "
+                    >
+                      <button
+                        type="button"
+                        class="org-option"
+                        role="radio"
+                        [attr.aria-checked]="
+                          selectedOrganization()?.name === org.name && !customOrganization().trim()
+                        "
+                        (click)="selectOrganization(org)"
+                      >
+                        <span class="org-radio" aria-hidden="true">
+                          <i class="bi bi-check2"></i>
+                        </span>
+                        <span class="org-copy">
+                          <strong>{{ org.name }}</strong>
+                          <small>{{ org.kind }}</small>
+                        </span>
+                      </button>
+                      <a
+                        class="org-link"
+                        [href]="org.website"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        [attr.aria-label]="'Ver sitio de ' + org.name"
+                        [attr.title]="'Ver sitio de ' + org.name"
+                      >
+                        <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="mb-3">
+              <label class="field-label" for="custom-org">
+                <i class="bi bi-pencil-square me-1 text-orange" aria-hidden="true"></i>
+                ¿No está en la lista? Escribí el nombre
+              </label>
+              <input
+                id="custom-org"
+                type="text"
+                class="form-control studio-input"
+                maxlength="120"
+                placeholder="Ej.: Coca-Cola, Ministerio de Economía, tu empresa..."
+                [ngModel]="customOrganization()"
+                (ngModelChange)="onCustomOrganizationChange($event)"
+              />
+              <div class="field-help">Si escribís un nombre, se usa ese en lugar de la lista.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="field-label" for="desired-role">
+                <i class="bi bi-crosshair me-1 text-orange" aria-hidden="true"></i>
+                Rol que te interesa <span class="optional-label">(opcional)</span>
+              </label>
+              <input
+                id="desired-role"
+                type="text"
+                class="form-control studio-input"
+                maxlength="120"
+                placeholder="Ej.: Analista financiero, diseñador, administrativo..."
+                [ngModel]="desiredRole()"
+                (ngModelChange)="onDesiredRoleChange($event)"
+              />
+            </div>
+
+            <div class="mb-4">
+              <label class="field-label" for="proactive-note">
+                <i class="bi bi-chat-left-text me-1 text-orange" aria-hidden="true"></i>
+                Mensaje para la organización <span class="optional-label">(opcional)</span>
+              </label>
+              <textarea
+                id="proactive-note"
+                rows="3"
+                maxlength="1000"
+                class="form-control studio-input"
+                placeholder="Contanos qué querés destacar de tu perfil..."
+                [ngModel]="proactiveNote()"
+                (ngModelChange)="onProactiveNoteChange($event)"
+              ></textarea>
+            </div>
+          </div>
+        }
 
         <!-- Acción Principal -->
         <button
@@ -180,10 +339,18 @@
         >
           @if (isAdapting()) {
             <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-            Preparando tu CV para esta oferta...
+            @if (mode() === 'offer') {
+              Preparando tu CV para esta oferta...
+            } @else {
+              Preparando tu CV espontáneo...
+            }
           } @else {
             <i class="bi bi-stars me-2" aria-hidden="true"></i>
-            Adaptar mi CV
+            @if (mode() === 'offer') {
+              Adaptar mi CV
+            } @else {
+              Generar CV para esta organización
+            }
           }
         </button>
       </div>
@@ -197,7 +364,13 @@
         >
           <div>
             <span class="step-tag">02 · Revisá el resultado</span>
-            <h2 class="panel-title">Tu CV para esta oferta</h2>
+            @if (mode() === 'offer') {
+              <h2 class="panel-title">Tu CV para esta oferta</h2>
+            } @else {
+              <h2 class="panel-title">
+                Tu CV para {{ organizationName() || 'tu organización' }}
+              </h2>
+            }
           </div>
 
           @if (adaptedCv()) {
@@ -271,9 +444,45 @@
               y no se guardan.
             } @else {
               <i class="bi bi-check2-circle" aria-hidden="true"></i>
-              Antes de enviarlo, revisá tus datos de contacto, fechas y logros.
+              @if (mode() === 'offer') {
+                Antes de enviarlo, revisá tus datos de contacto, fechas y logros.
+              } @else {
+                Revisá el CV y la nota antes de enviarlos. CVOLVE no envía ni guarda tu CV.
+              }
             }
           </div>
+
+          @if (mode() === 'proactive' && coverNote()) {
+            <section class="cover-note" aria-labelledby="cover-note-title">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                <h3 id="cover-note-title" class="cover-note-title mb-0">
+                  <i class="bi bi-envelope-paper me-2" aria-hidden="true"></i>
+                  Nota para acompañar tu CV
+                </h3>
+                <button type="button" class="btn btn-outline-studio btn-sm" (click)="copyCoverNote()">
+                  @if (copiedNoteSuccess()) {
+                    <i class="bi bi-check2 text-orange me-1" aria-hidden="true"></i>
+                    Copiada
+                  } @else {
+                    <i class="bi bi-clipboard me-1" aria-hidden="true"></i>
+                    Copiar nota
+                  }
+                </button>
+              </div>
+              <textarea
+                class="cover-note-text"
+                rows="7"
+                aria-label="Nota editable para la organización"
+                [ngModel]="coverNote()"
+                (ngModelChange)="coverNote.set($event)"
+              ></textarea>
+              <p class="cover-note-warning mb-0">
+                <i class="bi bi-shield-check me-1" aria-hidden="true"></i>
+                CVOLVE no envía el CV ni la nota. Copiá el texto y adjuntá el archivo en el canal
+                oficial de {{ organizationName() || 'la organización' }}.
+              </p>
+            </section>
+          }
         }
 
         <!-- Estado Vacío -->
@@ -285,10 +494,17 @@
               <i class="bi bi-file-earmark-richtext"></i>
             </div>
             <h3 class="h5 fw-semibold text-white mb-2">Acá vas a revisar tu adaptación</h3>
-            <p class="text-secondary small max-w-md mb-0">
-              Cargá tu CV y la oferta. La adaptación reorganiza tu experiencia sin agregar datos que
-              no estén en tu perfil.
-            </p>
+            @if (mode() === 'offer') {
+              <p class="text-secondary small max-w-md mb-0">
+                Cargá tu CV y la oferta. La adaptación reorganiza tu experiencia sin agregar datos que
+                no estén en tu perfil.
+              </p>
+            } @else {
+              <p class="text-secondary small max-w-md mb-0">
+                Cargá tu CV, elegí un rubro y la organización. Preparamos una versión para dejar tu CV
+                aunque no haya una oferta publicada.
+              </p>
+            }
           </div>
         }
 
@@ -300,7 +516,13 @@
             aria-live="polite"
           >
             <div class="loader-ring mb-3" aria-hidden="true"></div>
-            <h3 class="h5 fw-semibold text-white mb-1">Leyendo tu experiencia y la oferta</h3>
+            <h3 class="h5 fw-semibold text-white mb-1">
+              @if (mode() === 'offer') {
+                Leyendo tu experiencia y la oferta
+              } @else {
+                Leyendo tu experiencia y la organización
+              }
+            </h3>
             <p class="text-secondary small mb-0">
               Estamos preparando una versión para que la revises. Puede tardar unos segundos.
             </p>

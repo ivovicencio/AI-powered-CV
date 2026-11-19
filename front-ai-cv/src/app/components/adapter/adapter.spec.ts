@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { CvService } from '../../services/cv.service';
-import { AdaptedCv, ApiResponse } from '../../interfaces/cv.interface';
+import { AdaptedCv, ApiResponse, ProactiveResult } from '../../interfaces/cv.interface';
 
 import { Adapter } from './adapter';
 
@@ -46,6 +46,7 @@ const adaptedCvFixture: AdaptedCv = {
 const cvService = {
   extractJobDescription: vi.fn(),
   adaptCv: vi.fn(),
+  proactiveCv: vi.fn(),
   exportDocx: vi.fn(),
   exportPdf: vi.fn(),
 };
@@ -169,5 +170,74 @@ describe('Adapter', () => {
 
     expect(component.adaptedCv()).toBeNull();
     expect(component.infoMessage()).toContain('Adaptá el CV nuevamente');
+  });
+
+  it('switches to the proactive mode without removing the offer flow labels', () => {
+    component.setMode('proactive');
+    component.selectSector('multinacionales');
+    fixture.detectChanges();
+    let text = fixture.nativeElement.textContent as string;
+
+    expect(text).toContain('Tu CV para una empresa');
+    expect(text).toContain('1 · Rubro de la organización');
+    expect(text).toContain('Coca-Cola');
+    expect(text).toContain('Mercado Libre');
+    expect(text).not.toContain('Tu CV y la oferta');
+
+    component.setMode('offer');
+    fixture.detectChanges();
+    text = fixture.nativeElement.textContent as string;
+
+    expect(text).toContain('Tu CV y la oferta');
+    expect(text).not.toContain('1 · Rubro de la organización');
+  });
+
+  it('sends the chosen sector and organization to the proactive endpoint', () => {
+    const request = new Subject<ApiResponse<ProactiveResult>>();
+    const file = new File(['cv'], 'cv.pdf', { type: 'application/pdf' });
+    const sector = component.proactiveSectors.find((item) => item.id === 'multinacionales');
+    const organization = sector?.organizations.find((item) => item.name === 'Coca-Cola Argentina');
+
+    expect(organization).toBeDefined();
+
+    cvService.proactiveCv.mockReturnValue(request);
+    component.setMode('proactive');
+    component.selectedFile.set(file);
+    component.selectSector('multinacionales');
+    component.selectOrganization(organization!);
+    component.onDesiredRoleChange('Analista financiero');
+    component.onProactiveNoteChange('Me interesa el área de finanzas.');
+
+    component.generateAdaptedCv();
+
+    expect(cvService.proactiveCv).toHaveBeenCalledTimes(1);
+    const [sentFile, context] = cvService.proactiveCv.mock.calls[0];
+    expect(sentFile).toBe(file);
+    expect(context.sector).toBe(sector!.label);
+    expect(context.organization).toBe('Coca-Cola Argentina');
+    expect(context.organizationKind).toBe('Multinacional');
+    expect(context.desiredRole).toBe('Analista financiero');
+    expect(context.note).toBe('Me interesa el área de finanzas.');
+
+    request.next({
+      status: '1',
+      msg: 'OK',
+      data: { cv: adaptedCvFixture, note: 'Estimado equipo de Coca-Cola Argentina' }
+    });
+    fixture.detectChanges();
+
+    expect(component.coverNote()).toBe('Estimado equipo de Coca-Cola Argentina');
+    expect(fixture.nativeElement.textContent as string).toContain('Nota para acompañar tu CV');
+  });
+
+  it('does not call the proactive endpoint when the destination is missing', () => {
+    component.setMode('proactive');
+    component.selectedFile.set(new File(['cv'], 'cv.pdf', { type: 'application/pdf' }));
+    component.selectSector('economia');
+
+    component.generateAdaptedCv();
+
+    expect(cvService.proactiveCv).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toContain('Elegí una empresa u organismo');
   });
 });

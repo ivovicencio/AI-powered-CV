@@ -38,6 +38,19 @@ export interface AdaptedCv {
   languages?: string[];
 }
 
+export interface ProactiveContext {
+  sector: string;
+  organization: string;
+  organizationKind: string;
+  desiredRole: string;
+  note: string;
+}
+
+export interface ProactiveResult {
+  cv: AdaptedCv;
+  note: string;
+}
+
 export interface ApiResponse<T> {
   status: '0' | '1';
   msg: string;

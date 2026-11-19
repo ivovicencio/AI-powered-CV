@@ -61,6 +61,7 @@ Está pensado para **uso público y abierto**: cualquiera que abra la URL puede 
 
 - **Extracción de ofertas:** pegás una URL pública y el backend prioriza datos estructurados de ofertas (JobPosting/JSON-LD), con lectura del contenido visible como alternativa. Si el sitio bloquea el acceso, podés pegar el texto manualmente.
 - **Adaptación con IA para distintos sectores:** Groq identifica competencias, experiencia relevante y habilidades transferibles en el CV, y las relaciona con la oferta. Los términos ATS se usan de forma natural, sin inventar requisitos, experiencia ni logros.
+- **Postulación espontánea:** elegí un rubro y después una empresa, multinacional u organismo público (o escribí el nombre de tu destino), subí tu CV y generá una versión orientada a ese destino junto con una nota editable para acompañar el envío. No hace falta que exista una oferta: **CVOLVE no envía ni guarda el CV**, el envío lo hacés vos.
 - **Sugerencias directas:** escribís una idea y CVOLVE abre WhatsApp con el mensaje preparado; no se envía hasta que lo confirmes.
 - **Revisión del resultado:** corregís el texto directamente en la vista previa, copiás en texto plano o descargás; los cambios se mantienen solo en la sesión actual.
 - **Exportación:** DOCX y PDF generados en el servidor con `docx` y `pdfkit`.
@@ -87,9 +88,10 @@ Está pensado para **uso público y abierto**: cualquiera que abra la URL puede 
 Navegador
   └── Angular (frontend estático)
       └── /api/* → Express (backend/Dockerfile, Vercel Container Runtime)
-          ├── /api/job/extract  → axios + cheerio → descripción de la oferta
-          ├── /api/cv/adapt     → pdf-parse/mammoth → Groq → JSON AdaptedCv
-          └── /api/cv/export/*  → docx / pdfkit → archivo para descargar
+          ├── /api/job/extract    → axios + cheerio → descripción de la oferta
+          ├── /api/cv/adapt       → pdf-parse/mammoth → Groq → JSON AdaptedCv
+          ├── /api/cv/proactive   → mismo pipeline + nota para envío espontáneo
+          └── /api/cv/export/*    → docx / pdfkit → archivo para descargar
 ```
 
 1. Subís un PDF/DOCX de hasta **4 MB** y pegás una descripción de al menos **20 caracteres**.
@@ -168,10 +170,13 @@ El modelo `llama-3.3-70b-versatile` fue retirado por Groq en 08/2026; no lo uses
 
 ## Uso
 
-1. **Subí tu CV:** arrastralo al área punteada o hacé clic para buscarlo (PDF o DOCX, máx. 4 MB).
-2. **Contanos la oferta:** pegá la descripción o una URL pública y tocá **Extraer**. Si el sitio bloquea la lectura, podés copiar y pegar el texto igual. Funciona con ofertas de cualquier sector.
-3. **Adaptá:** tocá **Adaptar CV a esta Oferta**.
-4. **Revisá y llevátelo:** copiá el texto o descargá el DOCX/PDF desde el panel derecho.
+1. **Elegí el modo:** **Tengo una oferta** (flujo original) o **Elegí a quién enviarlo** (postulación espontánea).
+2. **Subí tu CV:** arrastralo al área punteada o hacé clic para buscarlo (PDF o DOCX, máx. 4 MB).
+3. **Contanos el destino:**
+   - Con oferta: pegá la descripción o una URL pública y tocá **Extraer**. Si el sitio bloquea la lectura, podés copiar y pegar el texto igual.
+   - Sin oferta: elegí un rubro, después una empresa, multinacional u organismo (o escribí el nombre) y, si querés, el rol que te interesa y un mensaje breve. El catálogo es orientativo: no indica vacantes ni contactos de RR.HH.
+4. **Generá:** tocá **Adaptar mi CV** o **Generar CV para esta organización**.
+5. **Revisá y llevátelo:** copiá el texto o descargá el DOCX/PDF desde el panel derecho. En el modo espontáneo también podés editar y copiar la nota; tenés que enviarla vos por el canal oficial de la organización.
 
 ## API
 
@@ -182,6 +187,7 @@ Todas las respuestas son JSON con `{ "status": "1", "data": ... }` cuando salen 
 | `GET` | `/api/health` | — | Estado del backend (público, no consume tokens) |
 | `POST` | `/api/job/extract` | `{ "url": "..." }` | Descripción de la oferta |
 | `POST` | `/api/cv/adapt` | `multipart/form-data`: `cvFile` + `jobDescription` | CV adaptado en JSON |
+| `POST` | `/api/cv/proactive` | `multipart/form-data`: `cvFile` + `sector` + `organization` + `organizationKind` + `desiredRole` + `note` | `{ cv, note }` para envío espontáneo |
 | `POST` | `/api/cv/export/docx` | `{ "cvData": {...} }` | Archivo DOCX |
 | `POST` | `/api/cv/export/pdf` | `{ "cvData": {...} }` | Archivo PDF |
 
@@ -246,6 +252,7 @@ Honestidad sobre lo que **todavía no está**:
 - Cloudflare Turnstile (protección anti-bots sin pedir nada al usuario) está documentado pero no implementado.
 - Los títulos de sección del documento se generan en español; el contenido se adapta al idioma de la oferta, pero esos encabezados quedan fijos.
 - No hay almacenamiento: si cerrás la pestaña, perdés el resultado (podés descargarlo antes).
+- El catálogo de la postulación espontánea es orientativo y está en el frontend: puede quedar desactualizado si una organización cambia de nombre. Siempre podés escribir el destino a mano.
 - Próximos pasos naturales: Turnstile, cuotas por usuario, más formatos de entrada y tests e2e.
 
 ## Tests y CI
@@ -278,6 +285,7 @@ backend/
 front-ai-cv/
   public/                 Logo, favicons, iconos PWA, manifest y OG image
   src/app/components      Navbar, adapter, footer e install-prompt
+  src/app/data            Catálogo de rubros y organizaciones del modo espontáneo
   src/app/services        CvService (siempre llama a /api)
   ngsw-config.json        Caché del service worker
   proxy.conf.json         /api → localhost:3000
